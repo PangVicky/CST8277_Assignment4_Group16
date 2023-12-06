@@ -171,7 +171,7 @@ public class ACMECollegeService implements Serializable {
         Student student = getStudentById(id);
         if (student != null) {
             em.refresh(student);
-            TypedQuery<SecurityUser> findUser = em.createNamedQuery(SecurityUser.FIND_STUDENTS_BY_Security_USER, SecurityUser.class).setParameter("param1", student.getId());
+            TypedQuery<SecurityUser> findUser = em.createNamedQuery(SecurityRole.FIND_ALL_STUDENTS_BY_ROLE, SecurityUser.class).setParameter("param1", student.getId());
                 /* TODO ACMECS02 - Use NamedQuery on SecurityRole to find this related Student
                    so that when we remove it, the relationship from SECURITY_USER table
                    is not dangling

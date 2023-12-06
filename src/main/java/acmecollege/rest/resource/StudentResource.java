@@ -28,6 +28,7 @@ import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.security.enterprise.SecurityContext;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -47,6 +48,7 @@ import acmecollege.ejb.ACMECollegeService;
 import acmecollege.entity.Professor;
 import acmecollege.entity.SecurityUser;
 import acmecollege.entity.Student;
+import acmecollege.entity.StudentClub;
 
 @Path(STUDENT_RESOURCE_NAME)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -98,13 +100,23 @@ public class StudentResource {
 
     @POST
     @RolesAllowed({ADMIN_ROLE})
-    public Response addPerson(Student newStudent) {
+    public Response addStuent(Student newStudent) {
         Response response = null;
         Student newStudentWithIdTimestamps = service.persistStudent(newStudent);
         // Build a SecurityUser linked to the new student
         service.buildUserForNewStudent(newStudentWithIdTimestamps);
         response = Response.ok(newStudentWithIdTimestamps).build();
         return response;
+    }
+    
+    @DELETE
+    @RolesAllowed({ADMIN_ROLE, USER_ROLE})
+    @Path(RESOURCE_PATH_ID_PATH)
+    public void deleteStudent(@PathParam("studentId") int sId) {
+        LOG.debug("Deleting student with id = {}", sId);
+        service.deleteStudentById(sId);
+//        Response response = Response.ok(sc).build();
+//        return response;
     }
 
     @PUT
