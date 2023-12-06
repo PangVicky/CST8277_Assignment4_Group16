@@ -15,7 +15,7 @@ package acmecollege.security;
 
 import static acmecollege.utility.MyConstants.PARAM1;
 import static acmecollege.utility.MyConstants.PU_NAME;
-import static acmecollege.entity.SecurityUser.SECURITY_USER_BY_NAME_QUERY;
+import static acmecollege.entity.SecurityUser.FIND_SECURITY_USER_BY_NAME;
 //import static acmecollege.utility.MyConstants.PARAM1;
 import static java.util.Collections.emptySet;
 
@@ -59,7 +59,7 @@ public class CustomIdentityStoreJPAHelper {
 		 * 
 		 */
 		try {
-			TypedQuery<SecurityUser> userByNameQuery = em.createNamedQuery(SecurityUser.SECURITY_USER_BY_NAME_QUERY,
+			TypedQuery<SecurityUser> userByNameQuery = em.createNamedQuery(SecurityUser.FIND_SECURITY_USER_BY_NAME,
 					SecurityUser.class);
 			userByNameQuery.setParameter("param1", username);
 			user = userByNameQuery.getSingleResult();

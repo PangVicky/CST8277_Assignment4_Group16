@@ -163,13 +163,6 @@
             </exclusions>
             <scope>test</scope>
         </dependency>
-        <dependency>
-        	<groupId>cst8277</groupId>
-        	<artifactId>
-        		ACMECollege-JPA-Mapping-JUnit-Skeleton
-        	</artifactId>
-        	<version>1</version>
-        </dependency>
      </dependencies>
 
     <build>

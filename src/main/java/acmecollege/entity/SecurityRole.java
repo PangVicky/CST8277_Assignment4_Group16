@@ -14,7 +14,7 @@
  */
 package acmecollege.entity;
 
-import static acmecollege.entity.SecurityUser.SECURITY_USER_BY_NAME_QUERY;
+import static acmecollege.entity.SecurityUser.FIND_SECURITY_USER_BY_NAME;
 
 
 import java.io.Serializable;
@@ -39,17 +39,21 @@ import javax.persistence.Table;
 //TODO SR01 - Make this into JPA entity and add all necessary annotations
 @Entity
 @Table(name = "security_role")
-//@NamedQuery(name = SecurityRole.FIND_STUDENT_BY_ROLE, query = "SELECT r.users FROM SecurityRole r WHERE :paramRole MEMBER OF r.students")
+@NamedQuery(name = SecurityRole.FIND_USER_ROLE_BY_NAME, query = "SELECT r FROM SecurityRole r WHERE r.roleName = :param1")
+@NamedQuery(name = SecurityRole.FIND_ALL_STUDENTS_BY_ROLE, query = "SELECT u FROM SecurityUser u left join fetch u.student left join fetch u.roles WHERE u.student.id= :param1")
 public class SecurityRole implements Serializable {
     /** Explicit set serialVersionUID */
     private static final long serialVersionUID = 1L;
     
+    public static final String FIND_USER_ROLE_BY_NAME = "SecurityRole.findUserRoleByName";
+    public static final String FIND_ALL_STUDENTS_BY_ROLE = "SecurityRole.findAllStudentsByRole";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "role_id")
     protected int id;
     
-    @Column(name = "role_name")
+    @Column(name = "name")
     protected String roleName;
     
     @ManyToMany(mappedBy = "roles")
