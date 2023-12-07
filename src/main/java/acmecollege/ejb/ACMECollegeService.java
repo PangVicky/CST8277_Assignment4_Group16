@@ -18,6 +18,7 @@ package acmecollege.ejb;
 import static acmecollege.entity.StudentClub.SPECIFIC_STUDENT_CLUB_QUERY_NAME;
 import static acmecollege.entity.StudentClub.IS_DUPLICATE_QUERY_NAME;
 import static acmecollege.entity.Student.ALL_STUDENTS_QUERY_NAME;
+import static acmecollege.utility.MyConstants.ADMIN_ROLE;
 import static acmecollege.utility.MyConstants.DEFAULT_KEY_SIZE;
 import static acmecollege.utility.MyConstants.DEFAULT_PROPERTY_ALGORITHM;
 import static acmecollege.utility.MyConstants.DEFAULT_PROPERTY_ITERATIONS;
@@ -43,6 +44,7 @@ import java.util.Set;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -50,13 +52,20 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.security.enterprise.identitystore.Pbkdf2PasswordHash;
 import javax.transaction.Transactional;
+import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.glassfish.soteria.WrappingCallerPrincipal;
 
+import acmecollege.entity.AcademicStudentClub;
 import acmecollege.entity.ClubMembership;
 import acmecollege.entity.CourseRegistration;
 import acmecollege.entity.MembershipCard;
+import acmecollege.entity.NonAcademicStudentClub;
 import acmecollege.entity.Professor;
 import acmecollege.entity.SecurityRole;
 import acmecollege.entity.SecurityUser;
@@ -117,6 +126,35 @@ public class ACMECollegeService implements Serializable {
         userRole.getUsers().add(userForNewStudent);
         em.persist(userForNewStudent);
     }
+    
+    @Transactional
+    public StudentClub addNewStudentClub(String clubName, boolean isAcademic) {
+        // Create an instance of the appropriate subclass based on the 'isAcademic' parameter
+        StudentClub newStudentClub = isAcademic ? new AcademicStudentClub() : new NonAcademicStudentClub();
+        newStudentClub.setName(clubName);
+
+        // Check if the club name is duplicate
+        if (isDuplicated(newStudentClub)) {
+            // Handle duplicate club name (you can throw an exception or return null, depending on your design)
+            // For now, let's throw an exception
+            throw new RuntimeException("Duplicate club name: " + newStudentClub.getName());
+        }
+
+        // Persist the new student club
+        em.persist(newStudentClub);
+
+        // Create a new ClubMembership and associate it with the StudentClub
+        ClubMembership clubMembership = new ClubMembership();
+        clubMembership.setStudentClub(newStudentClub);
+
+        // Persist the ClubMembership
+        em.persist(clubMembership);
+
+        // Add the ClubMembership to the StudentClub
+        newStudentClub.getClubMemberships().add(clubMembership);
+        return newStudentClub;
+    }
+
 
     @Transactional
     public Professor setProfessorForStudentCourse(int studentId, int courseId, Professor newProfessor) {
@@ -280,5 +318,82 @@ public class ACMECollegeService implements Serializable {
         }
         return clubMembershipToBeUpdated;
     }
+
+	public List<MembershipCard> getAllMembershipCards() {
+		// retrieve all membership cards
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<MembershipCard> cq = cb.createQuery(MembershipCard.class);
+        cq.select(cq.from(MembershipCard.class));
+        return em.createQuery(cq).getResultList();
+	}
+	
+	public MembershipCard getMembershipCardById(int id) {
+	    try {
+	    	LOG.info("Executing query for MembershipCard with id: {}", id);
+	        TypedQuery<MembershipCard> memberCardByIdQuery = em.createNamedQuery(MembershipCard.ID_CARD_QUERY_NAME, MembershipCard.class);
+	        memberCardByIdQuery.setParameter(PARAM1, id);
+	        return memberCardByIdQuery.getSingleResult();
+	    } catch (NoResultException e) {
+	        // Log or handle the case when no result is found
+	    	LOG.info("No MembershipCard found for id: {}", id);
+	        return null;
+	    }
+	}
+	
+	//create new membership card
+	public MembershipCard createNewMembershipCard(int studentId, MembershipCard membershipCard) {
+		// TODO Auto-generated method stub
+        Student student = getStudentById(studentId);
+        
+        if (student == null) {
+            // Handle the case where the student with the given ID is not found
+            throw new NotFoundException("Student with ID " + studentId + " not found");
+        }                
+        // Set the Student for the MembershipCard
+        membershipCard.setOwner(student);                
+        em.persist(membershipCard);
+        return membershipCard;
+	}
+
+   @Transactional
+    public MembershipCard setClubMembershipCardForMembershipCard(int membershipCardId, int clubMembershipId) {
+	   MembershipCard membershipCardToBeUpdated = em.find(MembershipCard.class, membershipCardId);
+	   ClubMembership clubMembershipToBeUpdated = em.find(ClubMembership.class, clubMembershipId);
+        if (membershipCardToBeUpdated != null && clubMembershipToBeUpdated !=null) { // MembershipCard exists
+        	membershipCardToBeUpdated.setClubMembership(clubMembershipToBeUpdated);
+        	clubMembershipToBeUpdated.setCard(membershipCardToBeUpdated);
+            return membershipCardToBeUpdated;
+        }
+        else return null;  // MembershipCard doesn't exists
+    }	
+	
+    @Transactional
+    public MembershipCard persistMembershipCard(MembershipCard newMembershipCard) {
+        em.persist(newMembershipCard);
+        return newMembershipCard;
+    }
+    
+    @Transactional
+	public MembershipCard updateMembershipCard(int id, MembershipCard membershipCardWithUpdates) {
+		// TODO Auto-generated method stub
+    	MembershipCard membershipCardToBeUpdated = getMembershipCardById(id);
+        if (membershipCardToBeUpdated != null) {
+            em.refresh(membershipCardToBeUpdated);
+            membershipCardToBeUpdated.setClubMembership(membershipCardWithUpdates.getClubMembership());
+            membershipCardToBeUpdated.setOwner(membershipCardWithUpdates.getOwner());
+            membershipCardToBeUpdated.setSigned(membershipCardWithUpdates.getSigned() != 0);
+            em.merge(membershipCardToBeUpdated);
+            em.flush();
+        }
+        return membershipCardToBeUpdated;
+	}
+
+	public void deleteMembershipCardById(int id) {
+		// TODO Auto-generated method stub
+		
+		
+	}
+
+
     
 }

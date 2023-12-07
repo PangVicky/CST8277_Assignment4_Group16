@@ -29,6 +29,10 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @SuppressWarnings("unused")
 
 /**
@@ -54,6 +58,7 @@ public class ClubMembership extends PojoBase implements Serializable {
 
 	// TODO CM04 - Add annotations for 1:1.  Changes to this class should not cascade to MembershipCard.
 	@OneToOne(mappedBy = "clubMembership")
+	@JsonBackReference
 	private MembershipCard card;
 
 	@Embedded

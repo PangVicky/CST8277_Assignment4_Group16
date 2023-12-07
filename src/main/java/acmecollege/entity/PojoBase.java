@@ -50,7 +50,8 @@ public abstract class PojoBase implements Serializable {
 	protected int id;
 
 	// TODO PB05 - Add missing annotations.
-    @Version
+	@Version
+    @Column(name = "version", nullable = false, columnDefinition = "BIGINT default 1")
 	protected int version;
 
 	// TODO PB06 - Add missing annotations (hint, is this column on DB?).

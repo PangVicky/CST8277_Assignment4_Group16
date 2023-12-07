@@ -28,6 +28,9 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @SuppressWarnings("unused")
 
 /**
@@ -47,8 +50,10 @@ public class MembershipCard extends PojoBase implements Serializable {
     public static final String ID_CARD_QUERY_NAME = "MembershipCard.findById";
 
 	// TODO MC03 - Add annotations for 1:1 mapping.  Changes here should cascade.
+//    @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name="membership_id", referencedColumnName = "membership_id")
+    @JsonBackReference
 	private ClubMembership clubMembership;
 
 	// TODO MC04 - Add annotations for M:1 mapping.  Changes here should not cascade.

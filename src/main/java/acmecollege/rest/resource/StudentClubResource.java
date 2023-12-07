@@ -16,6 +16,10 @@ package acmecollege.rest.resource;
 
 import java.util.List;
 
+import static acmecollege.utility.MyConstants.RESOURCE_PATH_ID_PATH;
+import static acmecollege.utility.MyConstants.RESOURCE_PATH_ID_ELEMENT;
+
+
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -41,6 +45,7 @@ import org.apache.logging.log4j.Logger;
 import acmecollege.ejb.ACMECollegeService;
 import acmecollege.entity.StudentClub;
 import acmecollege.entity.ClubMembership;
+import acmecollege.entity.Student;
 
 @Path("studentclub")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -66,8 +71,9 @@ public class StudentClubResource {
     
     @GET
     // TODO SCR01 - Specify the roles allowed for this method
-    @Path("/{studentClubId}")
-    public Response getStudentClubById(@PathParam("studentClubId") int studentClubId) {
+    @RolesAllowed({ADMIN_ROLE, USER_ROLE})
+    @Path(RESOURCE_PATH_ID_PATH)
+    public Response getStudentClubById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int studentClubId) {
         LOG.debug("Retrieving student club with id = {}", studentClubId);
         StudentClub studentClub = service.getStudentClubById(studentClubId);
         Response response = Response.ok(studentClub).build();
@@ -76,18 +82,19 @@ public class StudentClubResource {
 
     @DELETE
     // TODO SCR02 - Specify the roles allowed for this method
-    @Path("/{studentClubId}")
-    public Response deleteStudentClub(@PathParam("studentClubId") int scId) {
+    @RolesAllowed({ADMIN_ROLE})
+    @Path(RESOURCE_PATH_ID_PATH)
+    public Response deleteStudentClub(@PathParam(RESOURCE_PATH_ID_ELEMENT) int scId) {
         LOG.debug("Deleting student club with id = {}", scId);
         StudentClub sc = service.deleteStudentClub(scId);
         Response response = Response.ok(sc).build();
         return response;
     }
     
-    // Please try to understand and test the below methods:
+    //Please try to understand and test the below methods:
     @RolesAllowed({ADMIN_ROLE})
     @POST
-    public Response addStudentClub(StudentClub newStudentClub) {
+    public Response createNewStudentClub(StudentClub newStudentClub) {
         LOG.debug("Adding a new student club = {}", newStudentClub);
         if (service.isDuplicated(newStudentClub)) {
             HttpErrorResponse err = new HttpErrorResponse(Status.CONFLICT.getStatusCode(), "Entity already exists");
@@ -115,8 +122,8 @@ public class StudentClubResource {
 
     @RolesAllowed({ADMIN_ROLE, USER_ROLE})
     @PUT
-    @Path("/{studentClubId}")
-    public Response updateStudentClub(@PathParam("studentClubId") int scId, StudentClub updatingStudentClub) {
+    @Path(RESOURCE_PATH_ID_PATH)
+    public Response updateStudentClub(@PathParam(RESOURCE_PATH_ID_ELEMENT) int scId, StudentClub updatingStudentClub) {
         LOG.debug("Updating a specific student club with id = {}", scId);
         Response response = null;
         StudentClub updatedStudentClub = service.updateStudentClub(scId, updatingStudentClub);
