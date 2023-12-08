@@ -41,11 +41,12 @@ public interface MyConstants {
     public static final String COURSE_REGISTRATION_RESOURCE_NAME = "courseregistration";
     public static final String STUDENT_CLUB_RESOURCE_NAME =  "studentclub";
     public static final String CLUB_MEMBERSHIP_RESOURCE_NAME = "clubmembership";
-    public static final String PROFESSOR_SUBRESOURCE_NAME =  "professor";
+    public static final String PROFESSOR_SOURCE_NAME =  "professor";
     public static final String COURSE_PROFESSOR_RESOURCE_PATH =
-        RESOURCE_PATH_ID_PATH + SLASH + PROFESSOR_SUBRESOURCE_NAME;
+        RESOURCE_PATH_ID_PATH + SLASH + PROFESSOR_SOURCE_NAME;
     public static final String STUDENT_COURSE_PROFESSOR_RESOURCE_PATH = "/{studentId}/course/{courseId}/professor";
-
+    public static final String COURSE_REGISTRATION_PROFESSOR_RESOURSE_PATH = RESOURCE_PATH_ID_PATH + SLASH + PROFESSOR_SOURCE_NAME;
+    
     //Security constants
     public static final String USER_ROLE = "USER_ROLE";
     public static final String ADMIN_ROLE = "ADMIN_ROLE";
