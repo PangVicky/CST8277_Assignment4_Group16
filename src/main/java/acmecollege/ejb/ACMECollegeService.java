@@ -34,8 +34,10 @@ import static acmecollege.utility.MyConstants.PU_NAME;
 import static acmecollege.utility.MyConstants.USER_ROLE;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +57,8 @@ import javax.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.mysql.cj.x.protobuf.MysqlxDatatypes.Array;
+
 import acmecollege.entity.ClubMembership;
 import acmecollege.entity.Course;
 import acmecollege.entity.CourseRegistration;
@@ -64,6 +68,7 @@ import acmecollege.entity.SecurityRole;
 import acmecollege.entity.SecurityUser;
 import acmecollege.entity.Student;
 import acmecollege.entity.StudentClub;
+import acmecollege.entity.CourseRegistrationPK;
 
 @SuppressWarnings("unused")
 
@@ -110,6 +115,7 @@ public class ACMECollegeService implements Serializable {
     @Transactional
     public Student persistStudent(Student newStudent) {
         em.persist(newStudent);
+        em.flush();
         return newStudent;
     }
     
@@ -175,6 +181,7 @@ public class ACMECollegeService implements Serializable {
         userForNewStudent.getRoles().add(userRole);
         userRole.getUsers().add(userForNewStudent);
         em.persist(userForNewStudent);
+        em.flush();
     }
 
     /**
@@ -350,9 +357,9 @@ public class ACMECollegeService implements Serializable {
      */
     @Transactional
     public Course persistCourse(Course newCourse) {
-//    	LOG.debug("try to create a new course");
+    	LOG.debug("try to create a new course");
     	em.persist(newCourse);
-//    	em.flush();
+    	em.flush();
     	return newCourse;
     }
     /**
@@ -370,6 +377,29 @@ public class ACMECollegeService implements Serializable {
     		courseToUpdate.setYear(course.getYear());
     		courseToUpdate.setCreditUnits(course.getCreditUnits());
     		courseToUpdate.setOnline(course.getOnline());
+    		courseToUpdate = em.merge(courseToUpdate);
+    		em.flush();
+    	}
+    	return courseToUpdate;
+    }
+    
+    /**
+     * To update course registration to a course
+     * @param courseId
+     * @param cr
+     * @return
+     */
+    @Transactional
+    public Course createCourseRegistrationToCourse(int courseId, int studentId, CourseRegistration cr) {
+    	Course courseToUpdate = getCourseById(courseId);
+    	if (courseToUpdate != null) {
+    		Student student = getStudentById(studentId);
+    		cr.setStudent(student);
+    		cr.setCourse(courseToUpdate);
+    		em.refresh(courseToUpdate);
+    		Set<CourseRegistration> crs = courseToUpdate.getCourseRegistrations();
+    		crs.add(cr);
+    		courseToUpdate.setCourseRegistrations(crs);
     		em.merge(courseToUpdate);
     		em.flush();
     	}
@@ -405,8 +435,11 @@ public class ACMECollegeService implements Serializable {
      * @param id
      * @return
      */
-    public CourseRegistration getCourseRegistrationById(int id) {
-    	return em.find(CourseRegistration.class, id);
+    public CourseRegistration getCourseRegistrationById(int courseId, int studentId) {
+    	CourseRegistrationPK pk = new CourseRegistrationPK();
+    	pk.setCourseId(courseId);
+    	pk.setStudentId(studentId);
+    	return em.find(CourseRegistration.class, pk);
     }
     
     /**
@@ -415,8 +448,18 @@ public class ACMECollegeService implements Serializable {
      * @return
      */
     @Transactional
-    public CourseRegistration createCourseRegistration(CourseRegistration cr) {
-    	em.persist(cr);
+    public CourseRegistration createCourseRegistration(int courseId, int studentId, CourseRegistration cr) {
+    	Course course = getCourseById(courseId);
+    	Student student = getStudentById(studentId);
+    	if (course != null && student != null) {
+    		cr.getId().setCourseId(courseId);
+        	cr.getId().setStudentId(studentId);
+        	cr.setCourse(course);
+        	cr.setStudent(student);
+        	em.persist(cr);
+        	em.flush();
+    	}
+    	
     	return cr;
     }
     
@@ -427,8 +470,8 @@ public class ACMECollegeService implements Serializable {
      * @return
      */
     @Transactional
-    public CourseRegistration updateCourseRegistration(int id, CourseRegistration cr) {
-    	CourseRegistration crToUpdate = getCourseRegistrationById(id);
+    public CourseRegistration updateCourseRegistration(int courseId, int studentId, CourseRegistration cr) {
+    	CourseRegistration crToUpdate = getCourseRegistrationById(courseId, studentId);
     	if (crToUpdate != null) {
     		em.refresh(crToUpdate);
     		crToUpdate.setNumericGrade(cr.getNumericGrade());
@@ -445,9 +488,9 @@ public class ACMECollegeService implements Serializable {
      * @return
      */
     @Transactional
-    public CourseRegistration updateStudentToCourseRegistration(int studentId, int crId) {
-    	Student student = getStudentById(studentId);
-    	CourseRegistration cr = getCourseRegistrationById(crId);
+    public CourseRegistration updateStudentToCourseRegistration(Student newStudent, int crId, int studentId ) {
+    	Student student = getStudentById(newStudent.getId());
+    	CourseRegistration cr = getCourseRegistrationById(crId, studentId);
     	em.refresh(cr);
     	cr.setStudent(student);
     	em.merge(cr);
@@ -458,15 +501,16 @@ public class ACMECollegeService implements Serializable {
     /**
      * To update course to course registration by id
      * @param courseId
-     * @param crId
+     * @param courseId
      * @return
      */
     @Transactional
-    public CourseRegistration updateCourseToCourseRegistration(int courseId, int crId) {
-    	Course course = getCourseById(courseId);
-    	CourseRegistration cr = getCourseRegistrationById(crId);
+    public CourseRegistration updateCourseToCourseRegistration(Course newCourse, int courseId, int studentId) {
+    	Course course = getCourseById(newCourse.getId());
+    	CourseRegistration cr = getCourseRegistrationById(courseId, studentId);
     	em.refresh(cr);
     	cr.setCourse(course);
+    	em.merge(cr);
     	em.flush();
     	return cr;
     }
@@ -478,13 +522,16 @@ public class ACMECollegeService implements Serializable {
      * @return
      */
     @Transactional
-    public CourseRegistration updateProfessorToCourseRegistration(int professorId, int crId) {
-    	Professor professor = getProfessorById(professorId);
-    	CourseRegistration cr = getCourseRegistrationById(crId);
-    	em.refresh(cr);
-    	cr.setProfessor(professor);
-    	em.merge(cr);
-    	em.flush();
+    public CourseRegistration updateProfessorToCourseRegistration(Professor newProfessor, int crId, int studentId) {
+    	Professor professor = getProfessorById(newProfessor.getId());
+    	CourseRegistration cr = getCourseRegistrationById(crId, studentId);
+    	if (professor != null && cr != null) {
+    		em.refresh(cr);
+        	cr.setProfessor(professor);
+        	cr = em.merge(cr);
+        	em.flush();
+    	}
+    	System.out.println("Professor = " + cr.getProfessor().getFirstName());
     	return cr;
     }
     
@@ -494,8 +541,8 @@ public class ACMECollegeService implements Serializable {
      * @return
      */
     @Transactional
-    public CourseRegistration deleteProfessorToCourseRegistration(int id) {
-    	CourseRegistration cr = getCourseRegistrationById(id);
+    public CourseRegistration deleteProfessorToCourseRegistration(int courseId, int studentId) {
+    	CourseRegistration cr = getCourseRegistrationById(courseId, studentId);
     	em.refresh(cr);
     	cr.setProfessor(null);
     	em.merge(cr);
@@ -509,8 +556,8 @@ public class ACMECollegeService implements Serializable {
      * @return
      */
     @Transactional
-    public CourseRegistration deleteCourseRegistrationById(int id) {
-    	CourseRegistration cr = getCourseRegistrationById(id);
+    public CourseRegistration deleteCourseRegistrationById(int courseId, int studentId) {
+    	CourseRegistration cr = getCourseRegistrationById(courseId, studentId);
     	em.refresh(cr);
     	em.remove(cr);
     	em.flush();

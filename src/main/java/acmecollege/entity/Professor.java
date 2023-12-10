@@ -32,6 +32,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @SuppressWarnings("unused")
@@ -90,10 +91,11 @@ public class Professor extends PojoBase implements Serializable {
 	// Hint - @OneToMany option cascade can be added to define if changes to this entity should cascade to objects.
 	// Hint - @OneToMany option cascade will be ignored if not added, meaning no cascade effect.
 	// Hint - @OneToMany option fetch should be lazy to prevent eagerly initializing all the data.
-	@OneToMany(cascade=CascadeType.MERGE, fetch = FetchType.LAZY, mappedBy = "professor")
+	@OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "professor")
 	// Hint - java.util.Set is used as a collection, however List could have been used as well.
 	// Hint - java.util.Set will be unique and also possibly can provide better get performance with HashCode.
-	@JsonManagedReference(value="professor")
+//	@JsonManagedReference
+	@JsonIgnore
 	private Set<CourseRegistration> courseRegistrations = new HashSet<>();
 
 	public Professor() {

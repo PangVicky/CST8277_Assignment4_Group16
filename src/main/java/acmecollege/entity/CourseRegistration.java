@@ -40,7 +40,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
  */
 @Entity
 @Table(name = "course_registration")
-@Access(AccessType.FIELD)
 @NamedQuery(name = "CourseRegistration.findAll", query = "SELECT cr FROM CourseRegistration cr")
 public class CourseRegistration extends PojoBaseCompositeKey<CourseRegistrationPK> implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -51,22 +50,23 @@ public class CourseRegistration extends PojoBaseCompositeKey<CourseRegistrationP
 
 	// @MapsId is used to map a part of composite key to an entity.
 	@MapsId("studentId")
-	@ManyToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.LAZY)
+	@ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
 	@JoinColumn(name = "student_id", referencedColumnName = "id", nullable = false)
 	@JsonBackReference(value="student")
 	private Student student;
 
 	//TODO CR01 - Add missing annotations.  Similar to student, this field is a part of the composite key of this entity.  Changes to this class should cascade.  Reference to a course is not optional.
 	@MapsId("courseId")
-	@ManyToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.LAZY)
+	@ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
 	@JoinColumn(name = "course_id", referencedColumnName = "course_id", nullable = false)
 	@JsonBackReference(value="course")
 	private Course course;
 
 	//TODO CR02 - Add missing annotations.  Changes to this class should cascade.
-	@ManyToOne(cascade = CascadeType.ALL, optional = true, fetch = FetchType.LAZY)
+	@ManyToOne(cascade = CascadeType.MERGE, optional=true, fetch = FetchType.LAZY)
 	@JoinColumn(name = "professor_id", referencedColumnName = "professor_id", nullable = true)
-	@JsonBackReference(value="professor")
+//	@JsonBackReference
+//	@JsonManagedReference
 	private Professor professor;
 
 	@Column(name = "numeric_grade")

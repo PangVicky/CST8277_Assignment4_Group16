@@ -21,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 
 import acmecollege.ejb.ACMECollegeService;
 import acmecollege.entity.Course;
+import acmecollege.entity.CourseRegistration;
 
 import static acmecollege.utility.MyConstants.COURSE_RESOURCE_NAME;
 import static acmecollege.utility.MyConstants.RESOURCE_PATH_ID_ELEMENT;
@@ -84,6 +85,16 @@ public class CourseResource {
 		Course course = service.updateCourse(id, courseToUpdate);
 		return Response.ok(course).build();
 	}
+	
+	@POST
+	@RolesAllowed({ADMIN_ROLE})
+	@Path("/{courseId}/student/{studentId}")
+	public Response createCourseRegistrationToCourse(@PathParam("courseId") int courseId, @PathParam("studentId") int studentId, CourseRegistration cr) {
+		LOG.debug("try to update a course registration to a course with id = {}", courseId);
+		Course course = service.createCourseRegistrationToCourse(courseId, studentId, cr);
+		return Response.ok(course).build();
+	}
+	
 	
 	@DELETE
 	@RolesAllowed({ADMIN_ROLE})

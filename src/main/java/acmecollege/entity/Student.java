@@ -64,11 +64,13 @@ public class Student extends PojoBase implements Serializable {
 	// TODO ST05 - Add annotations for 1:M relation.  Changes should not cascade.
 	@OneToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY, mappedBy = "owner")
 	@JsonManagedReference(value="owner")
+	@JsonIgnore
 	private Set<MembershipCard> membershipCards = new HashSet<>();
 
 	// TODO ST06 - Add annotations for 1:M relation.  Changes should not cascade.
 	@OneToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY, mappedBy = "student")
 	@JsonManagedReference(value="student")
+	@JsonIgnore
 	private Set<CourseRegistration> courseRegistrations = new HashSet<>();
 
 	public String getFirstName() {

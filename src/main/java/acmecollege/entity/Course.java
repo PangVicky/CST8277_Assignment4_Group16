@@ -29,6 +29,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @SuppressWarnings("unused")
@@ -80,8 +81,9 @@ public class Course extends PojoBase implements Serializable {
 	private byte online;
 
 	// TODO CO09 - Add annotations for 1:M relation.  Changes to this class should not cascade.
-	@OneToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY, mappedBy = "course")
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "course")
 	@JsonManagedReference(value="course")
+	@JsonIgnore
 	private Set<CourseRegistration> courseRegistrations = new HashSet<>();
 
 	public Course() {

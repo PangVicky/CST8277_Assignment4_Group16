@@ -35,6 +35,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 /**
  * The persistent class for the student_club database table.
  */
@@ -64,6 +65,8 @@ public abstract class StudentClub extends PojoBase implements Serializable {
 
 	// TODO SC05 - Add the 1:M annotation.  This list should be effected by changes to this object (cascade).
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "club", orphanRemoval = true)
+	@JsonManagedReference
+	@JsonIgnore
 	private Set<ClubMembership> clubMemberships = new HashSet<>();
 
     @Transient

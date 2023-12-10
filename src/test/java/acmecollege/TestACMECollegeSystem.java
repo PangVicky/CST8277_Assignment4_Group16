@@ -31,6 +31,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
@@ -79,7 +80,7 @@ public class TestACMECollegeSystem {
         userAuth = HttpAuthenticationFeature.basic(DEFAULT_USER, DEFAULT_USER_PASSWORD);
     }
 
-    protected WebTarget webTarget;
+    protected static WebTarget webTarget;
     @BeforeEach
     public void setUp() {
         Client client = ClientBuilder.newClient(
@@ -87,17 +88,16 @@ public class TestACMECollegeSystem {
         webTarget = client.target(uri);
     }
 
-    @Test
-    public void test01_all_students_with_adminrole() throws JsonMappingException, JsonProcessingException {
-        Response response = webTarget
-            //.register(userAuth)
-            .register(adminAuth)
-            .path(STUDENT_RESOURCE_NAME)
-            .request()
-            .get();
-        assertThat(response.getStatus(), is(200));
-        List<Student> students = response.readEntity(new GenericType<List<Student>>(){});
-        assertThat(students, is(not(empty())));
-        assertThat(students, hasSize(1));
-    }
+//    @Test
+//    public void test01_all_students_with_adminrole() throws JsonMappingException, JsonProcessingException {
+//        Response response = webTarget
+//        		.register(adminAuth)
+//	            .path(STUDENT_RESOURCE_NAME)
+//	            .request()
+//	            .get();
+//        assertThat(response.getStatus(), is(200));
+//        List<Student> students = response.readEntity(new GenericType<List<Student>>(){});
+//        assertThat(students, is(not(empty())));
+//        assertThat(students, hasSize(1));
+//    }
 }

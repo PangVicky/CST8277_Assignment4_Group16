@@ -29,6 +29,9 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @SuppressWarnings("unused")
 
 /**
@@ -50,6 +53,7 @@ public class ClubMembership extends PojoBase implements Serializable {
 	// TODO CM03 - Add annotations for M:1.  Changes to this class should cascade to StudentClub.
 	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "club_id", referencedColumnName = "club_id")
+	@JsonBackReference
 	private StudentClub club;
 
 	// TODO CM04 - Add annotations for 1:1.  Changes to this class should not cascade to MembershipCard.
@@ -71,6 +75,7 @@ public class ClubMembership extends PojoBase implements Serializable {
 		this.club = club;
 	}
 
+	@JsonIgnore
 	public MembershipCard getCard() {
 		return card;
 	}
