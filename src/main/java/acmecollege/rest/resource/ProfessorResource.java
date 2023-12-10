@@ -30,16 +30,16 @@ import acmecollege.entity.Professor;
 import acmecollege.entity.SecurityUser;
 import acmecollege.entity.Student;
 import acmecollege.entity.StudentClub;
-import static acmecollege.utility.MyConstants.PROFESSOR_SUBRESOURCE_NAME;
+import static acmecollege.utility.MyConstants.PROFESSOR_SOURCE_NAME;
 import static acmecollege.utility.MyConstants.ADMIN_ROLE;
 import static acmecollege.utility.MyConstants.RESOURCE_PATH_ID_ELEMENT;
 import static acmecollege.utility.MyConstants.RESOURCE_PATH_ID_PATH;
-import static acmecollege.utility.MyConstants.STUDENT_COURSE_PROFESSOR_RESOURCE_PATH;
+
 /**
  * @author Mengya Shi
  *
  */
-@Path(PROFESSOR_SUBRESOURCE_NAME)
+@Path(PROFESSOR_SOURCE_NAME)
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class ProfessorResource {
@@ -82,12 +82,11 @@ public class ProfessorResource {
     @RolesAllowed({ADMIN_ROLE})
     public Response addProfessor(Professor newProfessor) {
     	LOG.debug("Adding professor", newProfessor);
-        Response response = null;
-        Professor newProfessor = service.createProfessor(newProfessor);
-        response = Response.ok(newProfessor).build();
+    	Professor tempProfessor = service.createProfessor(newProfessor);
+        Response  response = Response.ok(tempProfessor).build();
         return response;
     }
-    
+
     @DELETE
     @RolesAllowed({ADMIN_ROLE})
     @Path("/{professorId}")
@@ -101,9 +100,9 @@ public class ProfessorResource {
     @RolesAllowed({ADMIN_ROLE})
     @PUT
     @Path("/{professorId}")
-    public Response updateProfessor(@PathParam("professorId") int scId, Professor updatingProfessor) {
+    public Response updateProfessor(@PathParam("professorId") int professorId, Professor updatingProfessor) {
         LOG.debug("Updating a specific professor with id = {}", professorId);
-        StudentClub updatedProfessor = service.updateProfessor(professorId, updatingProfessor);
+        Professor updatedProfessor = service.updateProfessor(professorId, updatingProfessor);
         Response response = Response.ok(updatedProfessor).build();
         return response;
     }
