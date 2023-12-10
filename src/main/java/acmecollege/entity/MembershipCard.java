@@ -28,6 +28,10 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @SuppressWarnings("unused")
 
 /**
@@ -49,11 +53,13 @@ public class MembershipCard extends PojoBase implements Serializable {
 	// TODO MC03 - Add annotations for 1:1 mapping.  Changes here should cascade.
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name="membership_id", referencedColumnName = "membership_id")
+    @JsonManagedReference
 	private ClubMembership clubMembership;
 
 	// TODO MC04 - Add annotations for M:1 mapping.  Changes here should not cascade.
 	@ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
 	@JoinColumn(name = "student_id", referencedColumnName = "id", nullable = false)
+	@JsonBackReference
 	private Student owner;
 
 	// TODO MC05 - Add annotations.

@@ -98,25 +98,24 @@ public class StudentResource {
         return response;
     }
 
+    @DELETE
+    @RolesAllowed({ADMIN_ROLE})
+    // TODO SCR02 - Specify the roles allowed for this method
+    @Path(RESOURCE_PATH_ID_PATH)
+    public void deleteStudent(@PathParam(RESOURCE_PATH_ID_ELEMENT) int sId) {
+        LOG.debug("Deleting student with id = {}", sId);
+        service.deleteStudentById(sId);
+    }
+    
     @POST
     @RolesAllowed({ADMIN_ROLE})
-    public Response addStuent(Student newStudent) {
+    public Response addStudent(Student newStudent) {
         Response response = null;
         Student newStudentWithIdTimestamps = service.persistStudent(newStudent);
         // Build a SecurityUser linked to the new student
         service.buildUserForNewStudent(newStudentWithIdTimestamps);
         response = Response.ok(newStudentWithIdTimestamps).build();
         return response;
-    }
-    
-    @DELETE
-    @RolesAllowed({ADMIN_ROLE, USER_ROLE})
-    @Path(RESOURCE_PATH_ID_PATH)
-    public void deleteStudent(@PathParam("studentId") int sId) {
-        LOG.debug("Deleting student with id = {}", sId);
-        service.deleteStudentById(sId);
-//        Response response = Response.ok(sc).build();
-//        return response;
     }
 
     @PUT

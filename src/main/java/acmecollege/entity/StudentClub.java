@@ -34,7 +34,13 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 /**
  * The persistent class for the student_club database table.
  */
@@ -45,11 +51,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 @Table(name = "student_club")
 @AttributeOverride(name="id", column=@Column(name = "club_id"))
-@NamedQuery(name = StudentClub.ALL_STUDENT_CLUBS_QUERY_NAME, query = "SELECT distinct sc FROM StudentClub sc")
-@NamedQuery(name = StudentClub.SPECIFIC_STUDENT_CLUB_QUERY_NAME, query = "SELECT distinct sc FROM StudentClub sc where sc.id = :param1")
+@NamedQuery(name = StudentClub.ALL_STUDENT_CLUBS_QUERY_NAME, query = "SELECT distinct sc FROM StudentClub sc left join fetch sc.clubMemberships")
+@NamedQuery(name = StudentClub.SPECIFIC_STUDENT_CLUB_QUERY_NAME, query = "SELECT distinct sc FROM StudentClub sc left join fetch sc.clubMemberships where sc.id = :param1")
 @NamedQuery(name = StudentClub.IS_DUPLICATE_QUERY_NAME, query = "SELECT count(sc) FROM StudentClub sc where sc.name = :param1")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(columnDefinition = "bit(1)", name = "academic", discriminatorType = DiscriminatorType.INTEGER)
+//@JsonTypeInfo(use = Id.CLASS)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
+@JsonSubTypes({
+    @Type(value = NonAcademicStudentClub.class, name = "NonAcademicStudentClub"),
+    @Type(value = AcademicStudentClub.class, name = "AcademicStudentClub")
+})
 public abstract class StudentClub extends PojoBase implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
@@ -64,10 +76,20 @@ public abstract class StudentClub extends PojoBase implements Serializable {
 
 	// TODO SC05 - Add the 1:M annotation.  This list should be effected by changes to this object (cascade).
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "club", orphanRemoval = true)
+//	@JsonBackReference
+	//	@JsonIgnore
 	private Set<ClubMembership> clubMemberships = new HashSet<>();
 
     @Transient
     private boolean isAcademic;
+
+	public boolean isAcademic() {
+		return isAcademic;
+	}
+
+	public void setAcademic(boolean isAcademic) {
+		this.isAcademic = isAcademic;
+	}
 
 	public StudentClub() {
 		super();

@@ -29,7 +29,7 @@ public class PojoCompositeListener {
 		LocalDateTime now = LocalDateTime.now();
 		// TODO PCL02 - What member field(s) do we wish to alter just before object is INSERT'd in the database?
 		pojoBaseComposite.setCreated(now);
-		pojoBaseComposite.setUpdated(now);
+//		pojoBaseComposite.setUpdated(now);
 	}
 
 	// TODO PCL03 - What annotation is used when we want to do something just before object is UPDATE'd into database?
