@@ -63,6 +63,7 @@ public class StudentClubResource {
     protected SecurityContext sc;
     
     @GET
+    @RolesAllowed({ADMIN_ROLE, USER_ROLE})
     public Response getStudentClubs() {
         LOG.debug("Retrieving all student clubs...");
         List<StudentClub> studentClubs = service.getAllStudentClubs();

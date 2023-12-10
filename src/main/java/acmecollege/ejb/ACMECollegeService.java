@@ -52,6 +52,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import javax.security.enterprise.SecurityContext;
 import javax.security.enterprise.identitystore.Pbkdf2PasswordHash;
 import javax.transaction.Transactional;
 import javax.ws.rs.ForbiddenException;
@@ -89,6 +90,9 @@ public class ACMECollegeService implements Serializable {
     
     @PersistenceContext(name = PU_NAME)
     protected EntityManager em;
+    
+    @Inject
+    protected SecurityContext sc;
     
     @Inject
     protected Pbkdf2PasswordHash pbAndjPasswordHash;
@@ -436,6 +440,11 @@ public class ACMECollegeService implements Serializable {
 
 	public ClubMembership createNewClubMembership(int clubId, ClubMembership newClubMembership) {
 		// TODO Auto-generated method stub
+	    // Check if the user has the required role (admin or user)
+	    if (sc.isCallerInRole(USER_ROLE)) {
+	        // If not allowed, throw an exception or handle it as needed
+	        throw new ForbiddenException("User is not authorized to create a new club membership");
+	    }
 		StudentClub sc = getStudentClubById(clubId);
 		if (sc != null) {
 			newClubMembership.setStudentClub(sc);

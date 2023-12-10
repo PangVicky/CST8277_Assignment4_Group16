@@ -66,17 +66,9 @@ public class ClubMembershipResource {
         response = Response.status(clubMembership == null ? Status.NOT_FOUND : Status.OK).entity(clubMembership).build();
         return response;
     }
-
-//    @POST
-//    @RolesAllowed({ADMIN_ROLE, USER_ROLE})
-//    @Path("/studentClub/{studentClubId}")
-//    public Response createNewClubMembership(@PathParam("studentClubId") int studentClubId, ClubMembership clubMembership) {
-//    	ClubMembership newClubMembership = service.createNewClubMembership(studentClubId, clubMembership);
-//        return Response.ok(newClubMembership).build();
-//    }addNewStudentClub
     
     @POST
-    @RolesAllowed({ADMIN_ROLE, USER_ROLE})
+    @RolesAllowed({ADMIN_ROLE})
     @Path("/studentClub/{studentClubId}")
     public Response createNewClubMembership(@PathParam("studentClubId") int studentClubId, ClubMembership clubMembership) {
     	ClubMembership newClubMembership = service.createNewClubMembership(studentClubId, clubMembership);

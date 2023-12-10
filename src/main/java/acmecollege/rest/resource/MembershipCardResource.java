@@ -54,7 +54,7 @@ public class MembershipCardResource {
     }
 
     @GET
-    @RolesAllowed({ADMIN_ROLE})
+    @RolesAllowed({ADMIN_ROLE, USER_ROLE})
     @Path(RESOURCE_PATH_ID_PATH)
     public Response getMembershipCardById(@PathParam(RESOURCE_PATH_ID_ELEMENT) int id) {
         LOG.debug("try to retrieve specific MembershipCard " + id);
