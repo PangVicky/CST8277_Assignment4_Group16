@@ -25,7 +25,11 @@ import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.AccessType;
+import javax.persistence.Basic;
 
 
 @SuppressWarnings("unused")
@@ -40,6 +44,7 @@ import javax.persistence.AccessType;
 @MappedSuperclass
 @Access(AccessType.FIELD) 
 @EntityListeners({PojoCompositeListener.class})
+@JsonInclude(JsonInclude.Include.ALWAYS)
 public abstract class PojoBaseCompositeKey<ID extends Serializable> implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -49,10 +54,12 @@ public abstract class PojoBaseCompositeKey<ID extends Serializable> implements S
 
 	// TODO PC05 - Add missing annotations (hint, is this column on DB?).
     @Column(name = "created")
+    @Basic(optional = false)
 	protected LocalDateTime created;
 
 	// TODO PC06 - Add missing annotations (hint, is this column on DB?).
     @Column(name = "updated")
+    @Basic(optional = false)
 	protected LocalDateTime updated;
 
 	public abstract ID getId();

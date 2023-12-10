@@ -59,7 +59,7 @@ public class MembershipCard extends PojoBase implements Serializable {
 	// TODO MC04 - Add annotations for M:1 mapping.  Changes here should not cascade.
 	@ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
 	@JoinColumn(name = "student_id", referencedColumnName = "id", nullable = false)
-	@JsonBackReference
+	@JsonBackReference(value="owner")
 	private Student owner;
 
 	// TODO MC05 - Add annotations.

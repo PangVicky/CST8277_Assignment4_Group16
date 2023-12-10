@@ -29,6 +29,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.AccessType;
 
 /**
@@ -40,6 +43,7 @@ import javax.persistence.AccessType;
 @MappedSuperclass
 @Access(AccessType.FIELD) // NOTE:  By using this annotations, any annotation on a properties is ignored without warning
 @EntityListeners(PojoListener.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class PojoBase implements Serializable {
 	private static final long serialVersionUID = 1L;
 

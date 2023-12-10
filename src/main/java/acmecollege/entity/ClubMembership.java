@@ -54,7 +54,6 @@ public class ClubMembership extends PojoBase implements Serializable {
 	// TODO CM03 - Add annotations for M:1.  Changes to this class should cascade to StudentClub.
 	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "club_id", referencedColumnName = "club_id")
-//	@JsonManagedReference
 	@JsonIgnore
 	private StudentClub club;
 
@@ -78,6 +77,7 @@ public class ClubMembership extends PojoBase implements Serializable {
 		this.club = club;
 	}
 
+	@JsonIgnore
 	public MembershipCard getCard() {
 		return card;
 	}

@@ -28,6 +28,10 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @SuppressWarnings("unused")
 
 /**
@@ -38,11 +42,13 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "course")
 @NamedQuery(name = Course.ALL_COURSES_QUERY, query = "SELECT c FROM Course c")
+@NamedQuery(name = Course.IS_DUPLICATE_QUERY_NAME, query = "SELECT count(c) FROM Course c where c.courseTitle = :param1")
 @AttributeOverride(name = "id", column = @Column(name = "course_id"))
 public class Course extends PojoBase implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
     public static final String ALL_COURSES_QUERY = "Course.findAll";
+    public static final String IS_DUPLICATE_QUERY_NAME = "Course.isDuplicate";
 
 	// TODO CO03 - Add missing annotations.
 	@Basic(optional = false)
@@ -75,7 +81,9 @@ public class Course extends PojoBase implements Serializable {
 	private byte online;
 
 	// TODO CO09 - Add annotations for 1:M relation.  Changes to this class should not cascade.
-	@OneToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY, mappedBy = "course")
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "course")
+	@JsonManagedReference(value="course")
+	@JsonIgnore
 	private Set<CourseRegistration> courseRegistrations = new HashSet<>();
 
 	public Course() {

@@ -45,7 +45,7 @@ public interface MyConstants {
     public static final String COURSE_PROFESSOR_RESOURCE_PATH =
         RESOURCE_PATH_ID_PATH + SLASH + PROFESSOR_SUBRESOURCE_NAME;
     public static final String STUDENT_COURSE_PROFESSOR_RESOURCE_PATH = "/{studentId}/course/{courseId}/professor";
-
+    public static final String COURSE_REGISTRATION_PROFESSOR_RESOURSE_PATH = RESOURCE_PATH_ID_PATH + SLASH + PROFESSOR_SUBRESOURCE_NAME;
 
     //Security constants
     public static final String USER_ROLE = "USER_ROLE";
