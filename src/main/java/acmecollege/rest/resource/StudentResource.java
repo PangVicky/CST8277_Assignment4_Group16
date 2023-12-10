@@ -105,8 +105,6 @@ public class StudentResource {
     public void deleteStudent(@PathParam(RESOURCE_PATH_ID_ELEMENT) int sId) {
         LOG.debug("Deleting student with id = {}", sId);
         service.deleteStudentById(sId);
-//        Response response = Response.ok(sc).build();
-//        return response;
     }
     
     @POST

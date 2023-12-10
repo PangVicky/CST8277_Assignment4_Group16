@@ -18,7 +18,7 @@ import java.util.List;
 
 import static acmecollege.utility.MyConstants.RESOURCE_PATH_ID_PATH;
 import static acmecollege.utility.MyConstants.RESOURCE_PATH_ID_ELEMENT;
-
+import static acmecollege.utility.MyConstants.STUDENT_CLUB_RESOURCE_NAME;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
@@ -44,10 +44,12 @@ import org.apache.logging.log4j.Logger;
 
 import acmecollege.ejb.ACMECollegeService;
 import acmecollege.entity.StudentClub;
+import acmecollege.entity.AcademicStudentClub;
 import acmecollege.entity.ClubMembership;
+import acmecollege.entity.NonAcademicStudentClub;
 import acmecollege.entity.Student;
 
-@Path("studentclub")
+@Path(STUDENT_CLUB_RESOURCE_NAME)
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class StudentClubResource {
@@ -96,28 +98,24 @@ public class StudentClubResource {
     @POST
     public Response createNewStudentClub(StudentClub newStudentClub) {
         LOG.debug("Adding a new student club = {}", newStudentClub);
+        StudentClub studentClub;
+        if (newStudentClub.isAcademic()) {
+        	studentClub =  new AcademicStudentClub();
+        }
+        else {
+        	studentClub =  new NonAcademicStudentClub();
+        }
+        studentClub.setName(newStudentClub.getName());
+        studentClub.setAcademic(newStudentClub.isAcademic());
+        
         if (service.isDuplicated(newStudentClub)) {
             HttpErrorResponse err = new HttpErrorResponse(Status.CONFLICT.getStatusCode(), "Entity already exists");
             return Response.status(Status.CONFLICT).entity(err).build();
         }
         else {
-            StudentClub tempStudentClub = service.persistStudentClub(newStudentClub);
+            StudentClub tempStudentClub = service.persistStudentClub(studentClub);
             return Response.ok(tempStudentClub).build();
         }
-    }
-
-    @RolesAllowed({ADMIN_ROLE})
-    @POST
-    @Path("/{studentClubId}/clubmembership")
-    public Response addClubMembershipToStudentClub(@PathParam("studentClubId") int scId, ClubMembership newClubMembership) {
-        LOG.debug( "Adding a new ClubMembership to student club with id = {}", scId);
-        
-        StudentClub sc = service.getStudentClubById(scId);
-        newClubMembership.setStudentClub(sc);
-        sc.getClubMemberships().add(newClubMembership);
-        service.updateStudentClub(scId, sc);
-        
-        return Response.ok(sc).build();
     }
 
     @RolesAllowed({ADMIN_ROLE, USER_ROLE})
