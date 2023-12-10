@@ -4,6 +4,12 @@
 
 Member	Contributions	Average Peer Grade
 (Grade Provided by Group #1)
+
+- Doneyue Zhang
+- Mengya Shi
+- Mao Ye
+- Chunxia Pang
+
 Dongyue Zhang	Write service, resource for Course, CourseRegistration, Professor
 Write test cases for these Entity	25%
 Mengya Shi	Write resource, test cases for Professor Entity	25%
