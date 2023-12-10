@@ -581,6 +581,12 @@ public class ACMECollegeService implements Serializable {
 		return em.find(Professor.class, professorId);
 	}
     
+    public Set<CourseRegistration> getProfessorCourseRegistration(int professorId) {
+    	Professor professor = getProfessorById(professorId);
+    	Set<CourseRegistration> crs = professor.getCourseRegistrations();
+    	return crs;
+    }
+    
     /**
      * To create a new professor
      * @param professor
