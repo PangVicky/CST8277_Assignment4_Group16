@@ -46,6 +46,7 @@ import org.glassfish.jersey.logging.LoggingFeature;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
@@ -111,10 +112,10 @@ public class TestStudent {
 		webTarget = client.target(uri);
 	}
 
-	@Test()
+	@Test
+	@Order(1)
 	public void test01_all_Students_with_adminrole() throws JsonMappingException, JsonProcessingException {
 		Response response = webTarget
-				// .register(userAuth)
 				.register(adminAuth).path(STUDENT_RESOURCE_NAME).request().get();
 		assertThat(response.getStatus(), is(200));
 		List<Student> students = response.readEntity(new GenericType<List<Student>>() {
@@ -124,9 +125,9 @@ public class TestStudent {
 	}
 
 	@Test
+	@Order(2)
 	public void test02_query_student_by_Id_with_adminrole() throws JsonMappingException, JsonProcessingException {
 		Response response = webTarget
-//				.register(userAuth)
             .register(adminAuth)
 				.path(STUDENT_RESOURCE_NAME + "/" + Id).request().get();
 		assertThat(response.getStatus(), is(200));
@@ -135,12 +136,12 @@ public class TestStudent {
 	}
 
 	@Test
+	@Order(3)
 	public void test03_create_new_student_with_adminrole() throws JsonMappingException, JsonProcessingException {
 		Student student = new Student();
 		student.setFullName("Vicky", "Pang");
 
 		Response response = webTarget
-//            .register(userAuth)
 				.register(adminAuth).path(STUDENT_RESOURCE_NAME).request(MediaType.APPLICATION_JSON)
 				.post(Entity.entity(student, MediaType.APPLICATION_JSON));
 		assertThat(response.getStatus(), is(200));
@@ -149,24 +150,11 @@ public class TestStudent {
 	}
 
 	@Test
+	@Order(4)
 	public void test04_forbidden_delete_student_with_userrole() throws JsonMappingException, JsonProcessingException {
-//		Student student = new Student();
-//		student.setFullName("Vicky", "Pan");
-//
-//		Response response_res = webTarget
-////            .register(userAuth)
-//			.register(adminAuth)
-//            .path(STUDENT_RESOURCE_NAME)
-//            .request(MediaType.APPLICATION_JSON)
-//			.post(Entity.entity(student, MediaType.APPLICATION_JSON));
-//		assertThat(response_res.getStatus(), is(200));
-//		Student student_res = response_res.readEntity(Student.class);
-//		int del_Id = student_res.getId();
-//        LOG.debug("Retrieving student club with id = {}", del_Id);
 		
         Response response = webTarget
               .register(userAuth)
-//              .register(adminAuth)
               .path(STUDENT_CLUB_RESOURCE_NAME+"/"+Id)
               .request(MediaType.APPLICATION_JSON)
               .delete();
@@ -174,9 +162,9 @@ public class TestStudent {
 	}
 
 	@Test
+	@Order(5)
 	public void test05_query_student_by_Id_with_userrole() throws JsonMappingException, JsonProcessingException {
 		Response response = webTarget.register(userAuth)
-//	            .register(adminAuth)
 					.path(STUDENT_RESOURCE_NAME + "/" + Id).request().get();
 			assertThat(response.getStatus(), is(200));
 			Student student = response.readEntity(Student.class);
@@ -184,10 +172,10 @@ public class TestStudent {
 	}
 
 	@Test
+	@Order(6)
 	public void test06_forbidden_getAllList_Student_with_userrole()
 			throws JsonMappingException, JsonProcessingException {
 		Response response = webTarget.register(userAuth)
-//          .register(adminAuth)
 				.path(STUDENT_RESOURCE_NAME).request(MediaType.APPLICATION_JSON)
 				.get();
 		assertThat(response.getStatus(), is(403));

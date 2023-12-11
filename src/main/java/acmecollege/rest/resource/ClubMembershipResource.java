@@ -52,7 +52,6 @@ public class ClubMembershipResource {
         LOG.debug("Retrieving all ClubMembership...");
         List<ClubMembership> clubMemberships = service.getAllClubMemberships();
         LOG.debug("ClubMemberships found = {}", clubMemberships);
-        Response response = Response.ok(clubMemberships).build();        
         return Response.ok(clubMemberships).build();
     }
 

@@ -29,14 +29,7 @@ import acmecollege.entity.Student;
 public class TestCourseRegistrationResourse extends TestACMECollegeSystem{
 	private static Student newStudent = null;
 	
-	@AfterAll
-	public static void cleanUp() {
-		webTarget
-        .register(adminAuth)
-        .path(STUDENT_RESOURCE_NAME + "/" + newStudent.getId())
-        .request()
-        .delete();
-	}
+
 	
 	@Test
 	@Order(1)
@@ -106,22 +99,13 @@ public class TestCourseRegistrationResourse extends TestACMECollegeSystem{
 		        .post(Entity.entity(newStudent, MediaType.APPLICATION_JSON));
 		assertThat(response.getStatus(), is(200));
 		newStudent = response.readEntity(Student.class);
-		assertThat(newStudent.getId(), is(newStudent.getId()));
+		assertThat(newStudent.getFirstName(), is("Jane"));
 	}
 		
 		
 	@Test
 	@Order(6)
 	public void test06_course_registration_by_id_with_wrong_userrole() {
-//			Student newStudent = new Student();
-//			newStudent.setFirstName("Michael");
-//			newStudent.setLastName("Smith");
-		
-//			webTarget
-//	        .register(userAuth)
-//	        .path(STUDENT_RESOURCE_NAME)
-//	        .request()
-//	        .post(Entity.entity(newStudent, MediaType.APPLICATION_JSON));
 		
 		Response response = webTarget
 	            .register(userAuth)
@@ -289,5 +273,17 @@ public class TestCourseRegistrationResourse extends TestACMECollegeSystem{
 		        .request()
 		        .delete();
 		assertThat(response.getStatus(), is(403));
+	}
+	
+	@Test
+	@Order(17)
+	public void cleanUp() {
+		assertThat(newStudent.getId(), is(2));
+		Response response = webTarget
+        .register(adminAuth)
+        .path(STUDENT_RESOURCE_NAME + "/" + newStudent.getId())
+        .request()
+        .delete();
+		assertThat(response.getStatus(), is(200));
 	}
 }

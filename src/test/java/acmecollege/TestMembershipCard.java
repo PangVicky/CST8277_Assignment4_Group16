@@ -43,6 +43,7 @@ import org.glassfish.jersey.logging.LoggingFeature;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
@@ -105,7 +106,8 @@ public class TestMembershipCard {
         webTarget = client.target(uri);
     }
     
-    @Test()
+    @Test
+    @Order(1)
     public void test01_all_membershipCards_with_adminrole() throws JsonMappingException, JsonProcessingException {
         Response response = webTarget
             //.register(userAuth)
@@ -120,6 +122,7 @@ public class TestMembershipCard {
     }
     
     @Test
+    @Order(2)
     public void test02_query_membershipCard_by_Id_with_adminrole() throws JsonMappingException, JsonProcessingException {
         Response response = webTarget
 //            .register(userAuth)
@@ -133,6 +136,7 @@ public class TestMembershipCard {
     }
     
     @Test
+    @Order(3)
     public void test03_create_new_membershipCard_with_adminrole() throws JsonMappingException, JsonProcessingException {
     	Student student = new Student();
     	student.setFirstName("Vicky");
@@ -155,6 +159,7 @@ public class TestMembershipCard {
     }
     
     @Test
+    @Order(4)
     public void test04_update_membershipCard_with_adminrole() throws JsonMappingException, JsonProcessingException {
     	Student student = new Student();
     	student.setFirstName("John");
@@ -176,6 +181,7 @@ public class TestMembershipCard {
     }
     
     @Test
+    @Order(5)
     public void test05_delete_membershipCard_with_adminrole() throws JsonMappingException, JsonProcessingException { 
     	//new one membership card, then delete it
     	Student student = new Student();
@@ -208,6 +214,7 @@ public class TestMembershipCard {
     }
 
     @Test
+    @Order(6)
     public void test06_forbidden_getAllMembershipCards_with_userrole() throws JsonMappingException, JsonProcessingException { 
       Response response = webTarget
           .register(userAuth)

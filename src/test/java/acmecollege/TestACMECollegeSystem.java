@@ -53,10 +53,10 @@ import acmecollege.entity.Student;
 
 @SuppressWarnings("unused")
 
-@TestMethodOrder(MethodOrderer.MethodName.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestACMECollegeSystem {
-    private static final Class<?> _thisClaz = MethodHandles.lookup().lookupClass();
-    private static final Logger logger = LogManager.getLogger(_thisClaz);
+	protected static final Class<?> _thisClaz = MethodHandles.lookup().lookupClass();
+    protected static final Logger logger = LogManager.getLogger(_thisClaz);
 
     static final String HTTP_SCHEMA = "http";
     static final String HOST = "localhost";
@@ -88,16 +88,4 @@ public class TestACMECollegeSystem {
         webTarget = client.target(uri);
     }
 
-//    @Test
-//    public void test01_all_students_with_adminrole() throws JsonMappingException, JsonProcessingException {
-//        Response response = webTarget
-//        		.register(adminAuth)
-//	            .path(STUDENT_RESOURCE_NAME)
-//	            .request()
-//	            .get();
-//        assertThat(response.getStatus(), is(200));
-//        List<Student> students = response.readEntity(new GenericType<List<Student>>(){});
-//        assertThat(students, is(not(empty())));
-//        assertThat(students, hasSize(1));
-//    }
 }

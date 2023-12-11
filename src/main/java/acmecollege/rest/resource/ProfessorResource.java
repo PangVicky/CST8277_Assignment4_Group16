@@ -34,7 +34,7 @@ import acmecollege.entity.Professor;
 @Path(PROFESSOR_SUBRESOURCE_NAME)
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class ProfessorResource {
+public class ProfessorResource{
 private static final Logger LOG = LogManager.getLogger();
 	
 	@EJB
@@ -67,7 +67,8 @@ private static final Logger LOG = LogManager.getLogger();
         }
         return response;
     }
-    @POST
+    
+	@POST
     @RolesAllowed({ADMIN_ROLE})
     public Response createProfessor(Professor newProfessor) {
     	LOG.debug("Creating a new professor", newProfessor);

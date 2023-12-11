@@ -43,6 +43,7 @@ import org.glassfish.jersey.logging.LoggingFeature;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
@@ -77,6 +78,7 @@ public class TestStudentClub {
     static HttpAuthenticationFeature userAuth;
     private static final int Id = 1;
     private static final int studentClubId = 1;
+    private static StudentClub newStudentClub = null;
     
     @Inject
     protected SecurityContext sc;
@@ -106,7 +108,8 @@ public class TestStudentClub {
         webTarget = client.target(uri);
     }
     
-    @Test()
+    @Test
+    @Order(1)
     public void test01_all_studentClubs_with_adminrole() throws JsonMappingException, JsonProcessingException {
         Response response = webTarget
             //.register(userAuth)
@@ -119,9 +122,9 @@ public class TestStudentClub {
     }
     
     @Test
+    @Order(2)
     public void test02_query_studentClub_by_Id_with_userrole() throws JsonMappingException, JsonProcessingException {
         Response response = webTarget
-//            .register(userAuth)
             .register(adminAuth)
             .path(STUDENT_CLUB_RESOURCE_NAME+"/"+Id)
             .request()
@@ -132,58 +135,54 @@ public class TestStudentClub {
     }
     
     @Test
+    @Order(3)
     public void test03_create_new_studentClub_with_adminrole() throws JsonMappingException, JsonProcessingException {
-    	AcademicStudentClub studentClub = new AcademicStudentClub();
-    	studentClub.setName("JunitTesting QA");
-    	studentClub.setAcademic(true);
+    	newStudentClub = new AcademicStudentClub();
+    	newStudentClub.setName("JunitTesting QA");
+    	newStudentClub.setAcademic(true);
     	
         Response response = webTarget
-//            .register(userAuth)
             .register(adminAuth)
             .path(STUDENT_CLUB_RESOURCE_NAME)
             .request(MediaType.APPLICATION_JSON)
-            .post(Entity.entity(studentClub, MediaType.APPLICATION_JSON));
+            .post(Entity.entity(newStudentClub, MediaType.APPLICATION_JSON));
         assertThat(response.getStatus(), is(200));
-//        StudentClub studentClub_res = response.readEntity(StudentClub.class);
-//        assertThat(studentClub_res.getName(),  is("JunitTesting"));
+        newStudentClub = response.readEntity(StudentClub.class);
+        assertThat(newStudentClub.getName(), is("JunitTesting QA"));
     }
     
     @Test
+    @Order(4)
     public void test04_update_studentClub_with_adminrole() throws JsonMappingException, JsonProcessingException {
-    	//new a studentClub, then update it
-    	NonAcademicStudentClub  studentClub = new NonAcademicStudentClub();
-    	studentClub.setName("JunitTesting");
-    	studentClub.setAcademic(false);
-    	studentClub.setId(Id);
+    	newStudentClub.setName("JunitTesting");
 
         Response response_update = webTarget
-//            .register(userAuth)
             .register(adminAuth)
-            .path(STUDENT_CLUB_RESOURCE_NAME+"/"+Id)
+            .path(STUDENT_CLUB_RESOURCE_NAME+"/"+ newStudentClub.getId())
             .request(MediaType.APPLICATION_JSON)
-            .put(Entity.entity(studentClub, MediaType.APPLICATION_JSON));
+            .put(Entity.entity(newStudentClub, MediaType.APPLICATION_JSON));
         assertThat(response_update.getStatus(), is(200));
     }
     
     @Test
+    @Order(5)
     public void test05_delete_studentClub_with_adminrole() throws JsonMappingException, JsonProcessingException { 
         Response response = webTarget
-//            .register(userAuth)
             .register(adminAuth)
-            .path(STUDENT_CLUB_RESOURCE_NAME+"/"+Id)
+            .path(STUDENT_CLUB_RESOURCE_NAME+"/"+ newStudentClub.getId())
             .request(MediaType.APPLICATION_JSON)
             .delete();
         assertThat(response.getStatus(), is(200));
         StudentClub studentClub_res = response.readEntity(StudentClub.class);
-        assertThat(studentClub_res.getId(), is(1));
+        assertThat(studentClub_res.getId(), is(newStudentClub.getId()));
     }
 
     @Test
+    @Order(6)
     public void test06_forbidden_deleteMembershipCards_with_userrole() throws JsonMappingException, JsonProcessingException { 
       Response response = webTarget
           .register(userAuth)
-//          .register(adminAuth)
-          .path(STUDENT_CLUB_RESOURCE_NAME+"/"+Id)
+          .path(STUDENT_CLUB_RESOURCE_NAME+"/"+ newStudentClub.getId())
           .request(MediaType.APPLICATION_JSON)
           .delete();
       assertThat(response.getStatus(), is(403));

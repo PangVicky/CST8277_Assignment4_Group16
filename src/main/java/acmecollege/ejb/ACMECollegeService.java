@@ -402,6 +402,7 @@ public class ACMECollegeService implements Serializable {
     @Transactional
     public StudentClub persistStudentClub(StudentClub newStudentClub) {
         em.persist(newStudentClub);
+        em.flush();
         return newStudentClub;
     }
 

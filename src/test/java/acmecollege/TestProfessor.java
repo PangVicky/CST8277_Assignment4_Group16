@@ -46,6 +46,7 @@ import org.glassfish.jersey.logging.LoggingFeature;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
@@ -57,6 +58,7 @@ import javax.ws.rs.client.Entity;
 import acmecollege.ejb.ACMECollegeService;
 import acmecollege.entity.AcademicStudentClub;
 import acmecollege.entity.ClubMembership;
+import acmecollege.entity.Course;
 import acmecollege.entity.CourseRegistration;
 import acmecollege.entity.DurationAndStatus;
 import acmecollege.entity.MembershipCard;
@@ -67,32 +69,9 @@ import acmecollege.entity.StudentClub;
 @SuppressWarnings("unused")
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
-public class TestProfessor {
-	private static final Class<?> _thisClaz = MethodHandles.lookup().lookupClass();
-	private static final Logger logger = LogManager.getLogger(_thisClaz);
-	
-    private static final Logger LOG = LogManager.getLogger();
-
-
-	static final String HTTP_SCHEMA = "http";
-	static final String HOST = "localhost";
-	static final int PORT = 8080;
-	
-    
-    @PersistenceContext(name = PU_NAME)
-    protected EntityManager em;
-
-	// Test fixture(s)
-	static URI uri;
-	static HttpAuthenticationFeature adminAuth;
-	static HttpAuthenticationFeature userAuth;
+public class TestProfessor  extends TestACMECollegeSystem{
 	private static final int Id = 1;
-
-	@Inject
-	protected SecurityContext sc;
-
-	@EJB
-	protected ACMECollegeService service;
+	private static Professor newProfessor = null;
 
 	@BeforeAll
 	public static void oneTimeSetUp() throws Exception {
@@ -112,11 +91,14 @@ public class TestProfessor {
 		webTarget = client.target(uri);
 	}
 
-	@Test()
+	@Test
+	@Order(1)
 	public void test01_all_professors_with_adminrole() throws JsonMappingException, JsonProcessingException {
 		Response response = webTarget
-				// .register(userAuth)
-				.register(adminAuth).path(PROFESSOR_SUBRESOURCE_NAME).request().get();
+				.register(adminAuth)
+				.path(PROFESSOR_SUBRESOURCE_NAME)
+				.request()
+				.get();
 		assertThat(response.getStatus(), is(200));
 		List<Professor> professors = response.readEntity(new GenericType<List<Professor>>() {
 		});
@@ -124,49 +106,55 @@ public class TestProfessor {
 		assertThat(professors, hasSize(1));
 	}
 	
-	@Test()
+	@Test
+	@Order(2)
 	public void test02_query_professors_by_Id_with_adminrole() throws JsonMappingException, JsonProcessingException {
 		Response response = webTarget
-//				.register(userAuth)
-            .register(adminAuth)
+				.register(adminAuth)
 				.path(PROFESSOR_SUBRESOURCE_NAME + "/" + Id).request().get();
 		assertThat(response.getStatus(), is(200));
 		Professor professor = response.readEntity(Professor.class);
 		assertThat(professor.getId(), is(1));
 	}
 	
-	@Test()
+	@Test
+	@Order(3)
 	public void test03_create_professor_with_adminrole() throws JsonMappingException, JsonProcessingException {
-		Professor professor = new Professor();
-		professor.setFirstName("John");
-		professor.setLastName("Pandra");
+		newProfessor = new Professor();
+		newProfessor.setFirstName("John");
+		newProfessor.setLastName("Pandra");
+		newProfessor.setDepartment("Physics");
 
 		Response response = webTarget
-//            .register(userAuth)
-				.register(adminAuth).path(PROFESSOR_SUBRESOURCE_NAME).request(MediaType.APPLICATION_JSON)
-				.post(Entity.entity(professor, MediaType.APPLICATION_JSON));
+				.register(adminAuth)
+				.path(PROFESSOR_SUBRESOURCE_NAME)
+				.request()
+				.post(Entity.entity(newProfessor, MediaType.APPLICATION_JSON));
 		assertThat(response.getStatus(), is(200));
 		Professor professor_res = response.readEntity(Professor.class);
-		assertThat(professor_res.getFirstName(), is("John"));
+		assertThat(professor_res.getFirstName(), is(newProfessor.getFirstName()));
 	}
 	
-	@Test()
+	@Test
+	@Order(4)
 	public void test04_get_courseRegistration_by_professor_with_adminrole() throws JsonMappingException, JsonProcessingException {
 		Response response = webTarget
-//				.register(userAuth)
-            .register(adminAuth)
-				.path(PROFESSOR_SUBRESOURCE_NAME + "/" + Id+"/courseregistration").request().get();
+				.register(adminAuth)
+				.path(PROFESSOR_SUBRESOURCE_NAME + "/" + Id +"/courseregistration").request().get();
 		assertThat(response.getStatus(), is(200));
-		CourseRegistration courseRegistration = response.readEntity(CourseRegistration.class);
-		assertThat(courseRegistration.getId(), is(1));
+		List<CourseRegistration> courseRegistrations = response.readEntity(new GenericType <List<CourseRegistration>>(){});
+		for (CourseRegistration cr : courseRegistrations) {
+			assertThat(cr.getProfessor().getId(), is(1));
+		}
 	}
 	
-	@Test()
+	@Test
+	@Order(5)
 	public void test05_delete_professor_with_adminrole() throws JsonMappingException, JsonProcessingException {
         Response response = webTarget
 //              .register(userAuth)
               .register(adminAuth)
-              .path(PROFESSOR_SUBRESOURCE_NAME+"/"+Id)
+              .path(PROFESSOR_SUBRESOURCE_NAME+"/"+ newProfessor.getId())
               .request(MediaType.APPLICATION_JSON)
               .delete();
           assertThat(response.getStatus(), is(200));
@@ -174,7 +162,8 @@ public class TestProfessor {
 //          assertThat(studentClub_res.getId(), is(1));
 	}
 	
-	@Test()
+	@Test
+	@Order(5)
 	public void test06_forbidden_getAllProfessors_with_userrole() throws JsonMappingException, JsonProcessingException {
 		Response response = webTarget
 				 .register(userAuth)

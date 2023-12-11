@@ -100,11 +100,11 @@ public class StudentResource {
 
     @DELETE
     @RolesAllowed({ADMIN_ROLE})
-    // TODO SCR02 - Specify the roles allowed for this method
     @Path(RESOURCE_PATH_ID_PATH)
-    public void deleteStudent(@PathParam(RESOURCE_PATH_ID_ELEMENT) int sId) {
+    public Response deleteStudent(@PathParam(RESOURCE_PATH_ID_ELEMENT) int sId) {
         LOG.debug("Deleting student with id = {}", sId);
         service.deleteStudentById(sId);
+        return Response.ok().build();
     }
     
     @POST

@@ -41,6 +41,7 @@ import org.glassfish.jersey.logging.LoggingFeature;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
@@ -102,7 +103,8 @@ public class TestClubMembership {
         webTarget = client.target(uri);
     }
     
-    @Test()
+    @Test
+    @Order(1)
     public void test01_all_clubMemberships_with_adminrole() throws JsonMappingException, JsonProcessingException {
         Response response = webTarget
             //.register(userAuth)
@@ -117,6 +119,7 @@ public class TestClubMembership {
     }
     
     @Test
+    @Order(2)
     public void test02_query_clubMembership_by_Id_with_userrole() throws JsonMappingException, JsonProcessingException {
         Response response = webTarget
             .register(userAuth)
@@ -130,11 +133,11 @@ public class TestClubMembership {
     }
     
     @Test
+    @Order(3)
     public void test03_create_new_clubMembership_with_adminrole() throws JsonMappingException, JsonProcessingException {
         DurationAndStatus durationAndStatus = new DurationAndStatus();
         durationAndStatus.setDurationAndStatus(LocalDateTime.parse("2023-01-01T00:00:00"), LocalDateTime.parse("2023-12-31T23:59:59"), "1");
         Response response = webTarget
-//            .register(userAuth)
             .register(adminAuth)
             .path(CLUB_MEMBERSHIP_RESOURCE_NAME+"/studentClub/"+studentClubId)
             .request(MediaType.APPLICATION_JSON)
@@ -145,6 +148,7 @@ public class TestClubMembership {
     }
     
     @Test
+    @Order(4)
     public void test04_update_clubMembership_with_adminrole() throws JsonMappingException, JsonProcessingException {
     	StudentClub newStudentClub = new AcademicStudentClub(); 
     	newStudentClub.setId(studentClubId);
@@ -169,20 +173,19 @@ public class TestClubMembership {
     }
     
     @Test
+    @Order(5)
     public void test05_delete_clubMembership_with_adminrole() throws JsonMappingException, JsonProcessingException { 
       DurationAndStatus durationAndStatus = new DurationAndStatus();
       durationAndStatus.setDurationAndStatus(LocalDateTime.parse("2023-01-01T00:00:00"), LocalDateTime.parse("2023-12-31T23:59:59"), "1");
       Response response_create = webTarget
-//          .register(userAuth)
           .register(adminAuth)
           .path(CLUB_MEMBERSHIP_RESOURCE_NAME+"/studentClub/"+studentClubId)
           .request(MediaType.APPLICATION_JSON)
           .post(Entity.entity(durationAndStatus, MediaType.APPLICATION_JSON));
-      
+      assertThat(response_create.getStatus(), is(200));
       ClubMembership clubMembership_create = response_create.readEntity(ClubMembership.class);
 
         Response response = webTarget
-//            .register(userAuth)
             .register(adminAuth)
             .path(CLUB_MEMBERSHIP_RESOURCE_NAME+"/"+clubMembership_create.getId())
             .request(MediaType.APPLICATION_JSON)
@@ -193,6 +196,7 @@ public class TestClubMembership {
     }
 
     @Test
+    @Order(6)
     public void test06_forbidden_update_StudentClub_for_clubMembership_with_userrole() throws JsonMappingException, JsonProcessingException { 
       DurationAndStatus durationAndStatus = new DurationAndStatus();
       durationAndStatus.setDurationAndStatus(LocalDateTime.parse("2023-01-01T00:00:00"), LocalDateTime.parse("2023-12-31T23:59:59"), "1");
